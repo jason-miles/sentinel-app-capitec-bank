@@ -256,7 +256,7 @@ SELECT
   concat('ACCMULE0', m)                                                 AS from_acct,
   'ACCMULE00'                                                           AS to_acct,
   'credit'                                                              AS direction,
-  round((37500 + m*300) * 0.92, 2)                                      AS amount,
+  40000.00                                                              AS amount,   -- matches each mule's forward (7 x R40k = R280k in, clears R250k rapid threshold)
   'ZAR'                                                                 AS currency,
   concat('ACCMULE0', m)                                                 AS counterparty_id,
   'app'                                                                 AS channel,
@@ -368,6 +368,15 @@ INSERT INTO capitec_fraud_aml_bronze.accounts VALUES
 -- FALSE POSITIVES in isolation — the exact failure mode of siloed rules engines. These
 -- feedback rows pre-date the current structuring alerts; the copilot surfaces them when
 -- it expands the network. (alert_feedback is the app write-back table — safe to seed.)
+-- Guard-create the table so this seed is order-independent of sql/03_gold.
+CREATE TABLE IF NOT EXISTS capitec_fraud_aml_gold.alert_feedback (
+  feedback_id      STRING,
+  alert_id         STRING,
+  status           STRING,
+  analyst_feedback STRING,
+  analyst          STRING,
+  created_at       TIMESTAMP
+) USING DELTA;
 INSERT INTO capitec_fraud_aml_gold.alert_feedback
   (feedback_id, alert_id, status, analyst_feedback, analyst, created_at)
 VALUES

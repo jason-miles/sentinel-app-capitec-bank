@@ -16,3 +16,9 @@ CREATE SCHEMA IF NOT EXISTS elexon_app_for_settlement_acc_catalog.capitec_fraud_
 -- (fed to ai_parse_document / ai_extract in the Intelligence phase).
 CREATE VOLUME IF NOT EXISTS elexon_app_for_settlement_acc_catalog.capitec_fraud_aml_bronze.documents
   COMMENT 'KYC packs, source-of-funds letters, adverse-media PDFs.';
+
+-- Landing volume for the near-real-time streaming lanes (Auto Loader read_files):
+--   landing/transactions/  and  landing/card_transactions/  (create both subfolders
+--   with `databricks fs mkdir` before the first pipeline run — read_files needs them).
+CREATE VOLUME IF NOT EXISTS elexon_app_for_settlement_acc_catalog.capitec_fraud_aml_bronze.landing
+  COMMENT 'Auto Loader landing zone for the streaming transaction + card lanes.';

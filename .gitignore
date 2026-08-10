@@ -15,3 +15,7 @@ app/backend/frontend/test-results/
 app/backend/frontend/playwright-report/
 app/backend/frontend/blob-report/
 app/backend/frontend/.playwright/
+
+# Databricks bundle/app local state
+.databricks/
+**/.databricks/
