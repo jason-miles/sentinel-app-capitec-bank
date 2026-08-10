@@ -64,32 +64,88 @@ data/03_seed_supporting.sql
 data/04_plant_scenarios.sql      -- legacy families + WOW-A mule net + WOW-C gaming + ER dups
 data/05_seed_knowledge.sql       -- AML policy/typology/FATF corpus + historical STRs
 ```
-Then the Sherlock / governance / intelligence SQL under `sql/02_silver` … `sql/06_*`
-(same order as the Investec build; the new files `sql/06_sherlock/08_typology_sweep.sql`
-and `sql/05_intelligence/07_aml_knowledge_vector_search.sql` slot in with their peers).
+Then the pipeline (step 3) builds silver + gold, and the Sherlock / governance /
+intelligence SQL under `sql/05_intelligence` + `sql/06_*` run AFTER it (they read
+`gold.fraud_alerts` + `silver.entity_map`). Run order that works end-to-end:
+```
+# after the pipeline full-refresh (step 3):
+sql/05_intelligence/01_metric_views.sql
+sql/05_intelligence/02_adverse_media_ai.sql            # ai_query
+sql/06_sherlock/01_case_management.sql
+sql/06_sherlock/02_cases.sql                           # sherlock_cases (+ hero cases)
+sql/06_sherlock/03_exec_views.sql
+sql/06_sherlock/04_sanctions_screening.sql
+sql/06_sherlock/05_perpetual_kyc.sql                   # turnover-vs-declared signal
+sql/06_sherlock/06_peer_anomaly.sql
+sql/06_sherlock/07_fold_new_families.sql
+sql/06_sherlock/08_typology_sweep.sql                  # WOW-C gaming/TPP exposure
+sql/06_sherlock/09_app_writeback_tables.sql            # case notes/actions/SAR filings (+ seed hero notes)
+sql/05_intelligence/05_ml_features_labels.sql          # needs sherlock_cases
+sql/05_intelligence/06_ml_drift_monitoring.sql
+sql/05_intelligence/08_ml_scores_fallback.sql          # ml_alert_scores + ml_model_metrics (queue + governance)
+sql/06_governance/01_pii_column_masks.sql
+sql/06_governance/02_audit_log.sql
+sql/06_governance/03_rls_row_filter.sql                # set the app SP client id first (see file header)
+sql/06_governance/05_case_workflow.sql
+```
+NOTES:
+- `03_gold/01_alert_feedback_table.sql` is created inline by `data/04_plant_scenarios.sql`.
+- ML: the canonical path trains a GBT in MLflow (`ml/train_sar_model.py` +
+  `score_sar_model.py`) on serverless. `08_ml_scores_fallback.sql` builds the SAME two
+  tables (`ml_alert_scores`, `ml_model_metrics`) deterministically in pure SQL so the
+  analyst queue + model-governance panel work without a cluster; the real job overwrites
+  them (schemas match). Metrics are COMPUTED from the labelled set (AUC ~0.75, ~50% FP
+  reduction at equal alert budget) — not hardcoded.
+- RLS: `03_rls_row_filter.sql` sets a UC row filter on `sherlock_cases`. The app runs as
+  ONE service principal, so its client id MUST be in the filter or every case-backed page
+  returns 0 rows. Update the id from `databricks apps get capitec-fraud-aml`.
 
 ## 3. Deploy the bundle (app + pipeline + jobs)
 ```bash
+cd fraud_aml_pipeline
 databricks bundle deploy -t dev --profile fevm-elexon-app-for-settlement-acc
-# first/clean pipeline build must be a full refresh so cross-schema MVs order correctly:
-databricks bundle run capitec_fraud_aml_pipeline_etl --full-refresh-all \
+# The pipeline RESOURCE KEY is `fraud_aml_pipeline_etl` (the capitec_ prefix is only the
+# display name). Streaming lanes need one file each first, or schema inference fails:
+databricks fs mkdir dbfs:/Volumes/elexon_app_for_settlement_acc_catalog/capitec_fraud_aml_bronze/landing/transactions
+databricks fs mkdir dbfs:/Volumes/.../landing/card_transactions
+python ../data/stream/drop_transactions.py --scenario normal --account ACC00000011 \
+  --profile fevm-elexon-app-for-settlement-acc
+python ../data/stream/drop_transactions.py --scenario impossible_travel --card CARD00000021 \
+  --account ACC00000021 --profile fevm-elexon-app-for-settlement-acc
+# first/clean build must be a full refresh so cross-schema MVs order correctly:
+databricks bundle run fraud_aml_pipeline_etl --full-refresh-all \
   -t dev --profile fevm-elexon-app-for-settlement-acc
 ```
-All 10 detection families are expected to fire against the planted scenarios after a
-full refresh.
+All 10 detection families fire against the planted scenarios after a full refresh
+(verified: structuring x7 mules, rapid_movement on the aggregator, etc.).
 
-## 4. Provision the isolated Genie space + dashboard, then wire the app
-The app config (`app/backend/app.yaml`) intentionally ships **placeholders** for the
-Capitec-specific Genie space and dashboard so they don't point at Investec's:
+## 4. Genie space + dashboard (LIVE IDs already wired)
+The deployed instance uses these (already set in `app/backend/app.yaml` + genai.py):
 ```
-SENTINEL_GENIE_SPACE   = REPLACE_WITH_CAPITEC_GENIE_SPACE_ID
-SENTINEL_DASHBOARD_ID  = REPLACE_WITH_CAPITEC_DASHBOARD_ID
+SENTINEL_GENIE_SPACE   = 01f194ad316e127191fec45fdd5fb6bc   # "Capitec Fraud & AML Analyst"
+SENTINEL_DASHBOARD_ID  = 01f194ad41b618fa8342f8a851b45507   # "Capitec Sentinel — Executive Overview"
 ```
-1. Create a Genie space from `genie/fraud_aml_analyst_space.json` (already points at the
-   `capitec_fraud_aml_*` tables and includes the new turnover + typology questions).
-2. Import the dashboard from `dashboards/exec_overview.lvdash.json`.
-3. Paste both IDs into `app/backend/app.yaml` (and re-deploy the app), or set them as app
-   resources/env in the workspace.
+To recreate in a fresh workspace:
+```bash
+# Genie (serialized_space payload must have tables sorted by identifier + each
+# sample_question needs a 32-hex id — see the space JSON):
+databricks genie create-space <warehouse_id> "$(cat serialized_space.json)" \
+  --title "Capitec Fraud & AML Analyst" --description "$(cat description.txt)"
+# Dashboard:
+databricks lakeview create --display-name "Capitec Sentinel — Executive Overview" \
+  --warehouse-id <wh> --serialized-dashboard "$(cat dashboards/exec_overview.lvdash.json)"
+databricks lakeview publish <dashboard_id> --warehouse-id <wh>
+```
+Then paste both IDs into `app/backend/app.yaml` and redeploy the app.
+
+## 4b. Vector Search indexes (RAG — SAR policy + adverse-media citations)
+```bash
+# enable CDF on the sources, then create two DELTA_SYNC indexes on an ONLINE endpoint:
+#   gold.adverse_media_index   (source bronze.adverse_media,  pk article_id, embed body)
+#   gold.aml_knowledge_index   (source bronze.aml_knowledge,  pk doc_id,     embed body)
+# model: databricks-gte-large-en. Until these are READY, the SAR agent's policy +
+# adverse-media citations return empty (the rest of the SAR flow still works).
+```
 
 ## 5. Rebuild the frontend (only if you change UI)
 ```bash

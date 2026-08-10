@@ -33,8 +33,11 @@ SELECT
   coalesce(c360.current_risk_rating, 3)     AS current_risk_rating,
   coalesce(c360.recent_alerts, 0)           AS recent_alerts,
   -- known planted-fraud subject flag (kept out of the model features; used only
-  -- to seed the ground-truth label below)
+  -- to seed the ground-truth label below). Covers every planted-typology subject:
+  -- legacy fraud (CUSTFRAUD/TPFRAUD), the WOW-A mule network (CUSTMULE), and the
+  -- WOW-C gaming/TPP layering accounts (CUSTGAME).
   CASE WHEN c.customer_id LIKE 'CUSTFRAUD%' OR c.customer_id LIKE 'TPFRAUD%'
+            OR c.customer_id LIKE 'CUSTMULE%' OR c.customer_id LIKE 'CUSTGAME%'
        THEN 1 ELSE 0 END                    AS is_planted_fraud
 FROM sherlock_cases c
 LEFT JOIN customer_360 c360 ON c360.customer_id = c.customer_id;

@@ -5,16 +5,17 @@
 -- the app service principal keeps full visibility (so the app is never broken).
 --
 -- Visibility precedence (row visible when ANY is true):
---   1. Nedbank app service principal (982e92ba-…)   → full visibility (app keeps working)
---   1b. Capitec (Sentinel twin) app SP (e02af8bb-…) → full visibility (shared data twin)
+--   1. Capitec app service principal (ec6d288f-…)   → full visibility (app keeps working)
 --   2. member of `aml_compliance_oversight` group   → full visibility (stewards/CCO)
 --   3. deploying owner (jason.miles@databricks.com) → full visibility (demo/admin)
 --   4. member of `aml_team_<team_id>` group         → only that team's cases
 --   else                                            → no rows
 --
--- NOTE: both app SPs are listed because they share the SAME gold tables (the two
--- apps differ only in branding). Omitting either SP silently empties that app's
--- case-backed pages (exec views, queue) — every query returns 200 but 0 rows.
+-- NOTE: the app SP MUST be listed — the app runs every query as this one SP, so
+-- omitting it silently empties every case-backed page (exec views, queue): each
+-- query returns 200 but 0 rows. The client id below is the deployed capitec-fraud-aml
+-- app's service principal; re-point it if the app is recreated (get it from
+-- `databricks apps get capitec-fraud-aml`).
 --
 -- IMPORTANT — single-service-principal caveat: the app runs all queries as ONE
 -- service principal, so through the APP every logged-in analyst inherits the SP's
@@ -28,8 +29,7 @@ USE CATALOG elexon_app_for_settlement_acc_catalog;
 
 CREATE OR REPLACE FUNCTION capitec_fraud_aml_gold.rls_case_team(team_id STRING)
 RETURN
-  current_user() = '982e92ba-63ff-4de6-95ff-2bea54a734bd'      -- Nedbank app SP
-  OR current_user() = 'e02af8bb-a2a7-4cb7-a7d0-cd36a088aec8'    -- Capitec (twin) app SP
+  current_user() = 'ec6d288f-0870-4db0-b009-0de91c1ed3e8'      -- Capitec app SP (keeps app working)
   OR is_account_group_member('aml_compliance_oversight')        -- oversight/CCO
   OR current_user() = 'jason.miles@databricks.com'              -- deploying owner
   OR is_account_group_member(concat('aml_team_', lower(team_id)));  -- per-team analyst
