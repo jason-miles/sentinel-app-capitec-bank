@@ -1,0 +1,28 @@
+command:
+  - "uvicorn"
+  - "app:app"
+  - "--host"
+  - "0.0.0.0"
+  - "--port"
+  - "8000"
+
+env:
+  - name: FRAUD_CATALOG
+    value: "elexon_app_for_settlement_acc_catalog"
+  - name: FRAUD_GOLD_SCHEMA
+    value: "capitec_fraud_aml_gold"
+  - name: FRAUD_SILVER_SCHEMA
+    value: "capitec_fraud_aml_silver"
+  # Serving warehouse the app queries run on. Shared workspace warehouse is fine
+  # (queries are schema-scoped to capitec_fraud_aml_*); override if isolating.
+  - name: FRAUD_WAREHOUSE_ID
+    value: "e227fa247dd5bedd"
+  # NOTE: Provision a NEW Genie space + dashboard pointed at the capitec_fraud_aml_*
+  # schemas and paste their IDs here (placeholders below — the app's Ask Sentinel +
+  # dashboard tabs won't work until these are set). See DEPLOY.md step 4.
+  - name: SENTINEL_GENIE_SPACE
+    value: "REPLACE_WITH_CAPITEC_GENIE_SPACE_ID"
+  - name: SENTINEL_DASHBOARD_ID
+    value: "REPLACE_WITH_CAPITEC_DASHBOARD_ID"
+  - name: DATABRICKS_HOST
+    value: "https://fevm-elexon-app-for-settlement-acc.cloud.databricks.com"
