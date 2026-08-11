@@ -1,8 +1,9 @@
--- Capitec Fraud & AML — Synthetic seeder (4/4): PLANTED FRAUD SCENARIOS
+-- Capitec Bank — Fraud & AML SAMPLE DATA · Synthetic seeder (4/4): PLANTED SCENARIOS
+-- *** CAPITEC BANK DEMO DATA — 100% SYNTHETIC, NO REAL CLIENTS ***
 -- Guarantees every alert family fires on demo day (PRD §10) AND authors the three
 -- "wow" narratives from the app-building brief as discoverable ground truth.
--- All planted IDs use a FRAUD_ / MULE / F prefix so they are easy to trace.
--- Every name is obviously synthetic — DEMO DATA, no real individuals or entities.
+-- All planted IDs use a FRAUD_ / MULE / GAME / DUP prefix so they are easy to trace.
+-- Every name is obviously synthetic; subject mailboxes use @demo.capitecbank.co.za.
 --
 -- Capitec framing: the headline typology is a MONEY-MULE / LAUNDERING NETWORK
 -- operating through ordinary Global One retail accounts — the dominant financial-
@@ -41,11 +42,11 @@ INSERT INTO capitec_fraud_aml_bronze.customers
    segment, kyc_tier, declared_occupation, declared_monthly_turnover, pep_flag, employer_name,
    device_id, onboarded_at, onboarding_channel, source_system, _ingested_at)
 VALUES
-  ('CUSTFRAUD01','Sipho Dlamini', DATE'1990-03-12','ID7000000001','TAX700000001','sdlamini@example.co.za','+27820000001','14 Vilakazi St','Soweto','South Africa','global_one_active','tier2','Small trader', 20000.0, false,'Self','DEVFRAUD0001', TIMESTAMP'2020-01-05 09:00:00','branch','crm', current_timestamp()),
-  ('CUSTFRAUD02','Naledi Khumalo', DATE'1995-08-22','ID7000000002','TAX700000002','nkhumalo@example.co.za','+27820000002','27 Klipfontein Rd','Mitchells Plain','South Africa','global_one_entry','tier1','Retail worker', 12000.0, false,'Shoprite Holdings','DEVFRAUD0002', TIMESTAMP'2019-06-15 09:00:00','app','crm', current_timestamp()),
-  ('CUSTFRAUD03','Bongani Zulu', DATE'1988-11-02','ID7000000003','TAX700000003','bzulu@example.co.za','+27820000003','3 Govan Mbeki Ave','Mthatha','South Africa','global_one_active','tier2','Driver', 15000.0, false,'Self','DEVFRAUD0003', TIMESTAMP'2018-02-20 09:00:00','branch','crm', current_timestamp()),
-  ('CUSTFRAUD04','Chloe Adams', DATE'1993-05-30','ID7000000004','TAX700000004','cadams@example.co.za','+27820000004','41 Church St','Bloemfontein','South Africa','global_one_plus','tier2','Self-employed', 40000.0, false,'Self','DEVFRAUD0004', TIMESTAMP'2021-09-01 09:00:00','app','crm', current_timestamp()),
-  ('CUSTFRAUD05','Thabo Mokoena', DATE'1985-01-19','ID7000000005','TAX700000005','tmokoena@example.co.za','+27820000005','5 Main St','Polokwane','South Africa','business','tier3','Self-employed', 60000.0, true,'Self','DEVFRAUD0005', TIMESTAMP'2020-07-11 09:00:00','branch','crm', current_timestamp());
+  ('CUSTFRAUD01','Sipho Dlamini', DATE'1990-03-12','ID7000000001','TAX700000001','sdlamini@demo.capitecbank.co.za','+27820000001','14 Vilakazi St','Soweto','South Africa','global_one_active','tier2','Small trader', 20000.0, false,'Self','DEVFRAUD0001', TIMESTAMP'2020-01-05 09:00:00','branch','crm', current_timestamp()),
+  ('CUSTFRAUD02','Naledi Khumalo', DATE'1995-08-22','ID7000000002','TAX700000002','nkhumalo@demo.capitecbank.co.za','+27820000002','27 Klipfontein Rd','Mitchells Plain','South Africa','global_one_entry','tier1','Retail worker', 12000.0, false,'Shoprite Holdings','DEVFRAUD0002', TIMESTAMP'2019-06-15 09:00:00','app','crm', current_timestamp()),
+  ('CUSTFRAUD03','Bongani Zulu', DATE'1988-11-02','ID7000000003','TAX700000003','bzulu@demo.capitecbank.co.za','+27820000003','3 Govan Mbeki Ave','Mthatha','South Africa','global_one_active','tier2','Driver', 15000.0, false,'Self','DEVFRAUD0003', TIMESTAMP'2018-02-20 09:00:00','branch','crm', current_timestamp()),
+  ('CUSTFRAUD04','Chloe Adams', DATE'1993-05-30','ID7000000004','TAX700000004','cadams@demo.capitecbank.co.za','+27820000004','41 Church St','Bloemfontein','South Africa','global_one_plus','tier2','Self-employed', 40000.0, false,'Self','DEVFRAUD0004', TIMESTAMP'2021-09-01 09:00:00','app','crm', current_timestamp()),
+  ('CUSTFRAUD05','Thabo Mokoena', DATE'1985-01-19','ID7000000005','TAX700000005','tmokoena@demo.capitecbank.co.za','+27820000005','5 Main St','Polokwane','South Africa','business','tier3','Self-employed', 60000.0, true,'Self','DEVFRAUD0005', TIMESTAMP'2020-07-11 09:00:00','branch','crm', current_timestamp());
 
 -- Ring + passthrough + travel accounts (fixed IDs) ------------------------
 INSERT INTO capitec_fraud_aml_bronze.accounts VALUES
@@ -175,15 +176,15 @@ INSERT INTO capitec_fraud_aml_bronze.customers
    device_id, onboarded_at, onboarding_channel, source_system, _ingested_at)
 VALUES
   -- Aggregator / recruiter
-  ('CUSTMULE00','Kabelo Motaung', DATE'1987-04-18','ID7100000010','TAX710000010','kmotaung@example.co.za','+27829000010','88 Recruiter St','Soweto','South Africa','business','tier2','Self-employed', 30000.0, false,'Self','DEVMULE00A1', cast(date_sub(current_date(),40) AS TIMESTAMP),'branch','crm', current_timestamp()),
+  ('CUSTMULE00','Kabelo Motaung', DATE'1987-04-18','ID7100000010','TAX710000010','kmotaung@demo.capitecbank.co.za','+27829000010','88 Recruiter St','Soweto','South Africa','business','tier2','Self-employed', 30000.0, false,'Self','DEVMULE00A1', cast(date_sub(current_date(),40) AS TIMESTAMP),'branch','crm', current_timestamp()),
   -- 7 mules: shared address + shared device + shared IP, onboarded within 3 weeks
-  ('CUSTMULE01','Lerato Sithole', DATE'2000-02-01','ID7100000011','TAX710000011','mule1@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),35) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE02','Andile Mbeki', DATE'1999-07-14','ID7100000012','TAX710000012','mule2@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),33) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE03','Zinhle Nkosi', DATE'2001-11-30','ID7100000013','TAX710000013','mule3@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Unemployed', 4000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),31) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE04','Tebogo Radebe', DATE'1998-05-09','ID7100000014','TAX710000014','mule4@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),29) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE05','Ayanda Dube', DATE'2000-09-21','ID7100000015','TAX710000015','mule5@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Unemployed', 4000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),27) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE06','Sibusiso Ngcobo', DATE'1997-12-03','ID7100000016','TAX710000016','mule6@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),25) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTMULE07','Palesa Mahlangu', DATE'1999-03-27','ID7100000017','TAX710000017','mule7@example.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),24) AS TIMESTAMP),'app','crm', current_timestamp());
+  ('CUSTMULE01','Lerato Sithole', DATE'2000-02-01','ID7100000011','TAX710000011','mule1@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),35) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE02','Andile Mbeki', DATE'1999-07-14','ID7100000012','TAX710000012','mule2@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),33) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE03','Zinhle Nkosi', DATE'2001-11-30','ID7100000013','TAX710000013','mule3@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Unemployed', 4000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),31) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE04','Tebogo Radebe', DATE'1998-05-09','ID7100000014','TAX710000014','mule4@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),29) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE05','Ayanda Dube', DATE'2000-09-21','ID7100000015','TAX710000015','mule5@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Unemployed', 4000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),27) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE06','Sibusiso Ngcobo', DATE'1997-12-03','ID7100000016','TAX710000016','mule6@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),25) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTMULE07','Palesa Mahlangu', DATE'1999-03-27','ID7100000017','TAX710000017','mule7@demo.capitecbank.co.za','+27829000011','88 Recruiter St','Soweto','South Africa','global_one_entry','tier1','Student', 5000.0, false,'Self','DEVMULE0001', cast(date_sub(current_date(),24) AS TIMESTAMP),'app','crm', current_timestamp());
 
 INSERT INTO capitec_fraud_aml_bronze.accounts VALUES
   ('ACCMULE00','CUSTMULE00','global_one_transact','ZAR', cast(date_sub(current_date(),40) AS TIMESTAMP),'active', cast(date_sub(current_date(),1) AS TIMESTAMP), 5000.00,'crm', current_timestamp()),
@@ -288,8 +289,8 @@ INSERT INTO capitec_fraud_aml_bronze.customers
    segment, kyc_tier, declared_occupation, declared_monthly_turnover, pep_flag, employer_name,
    device_id, onboarded_at, onboarding_channel, source_system, _ingested_at)
 VALUES
-  ('CUSTGAME01','Werner Pretorius', DATE'1986-06-15','ID7200000021','TAX720000021','wpretorius@example.co.za','+27829100021','12 Retief St','Pretoria','South Africa','global_one_plus','tier2','Self-employed', 35000.0, false,'Self','DEVGAME0001', cast(date_sub(current_date(),400) AS TIMESTAMP),'app','crm', current_timestamp()),
-  ('CUSTGAME02','Fatima Ismail', DATE'1991-10-08','ID7200000022','TAX720000022','fismail@example.co.za','+27829100022','7 Marine Dr','Durban','South Africa','global_one_active','tier2','Small trader', 28000.0, false,'Self','DEVGAME0002', cast(date_sub(current_date(),380) AS TIMESTAMP),'app','crm', current_timestamp());
+  ('CUSTGAME01','Werner Pretorius', DATE'1986-06-15','ID7200000021','TAX720000021','wpretorius@demo.capitecbank.co.za','+27829100021','12 Retief St','Pretoria','South Africa','global_one_plus','tier2','Self-employed', 35000.0, false,'Self','DEVGAME0001', cast(date_sub(current_date(),400) AS TIMESTAMP),'app','crm', current_timestamp()),
+  ('CUSTGAME02','Fatima Ismail', DATE'1991-10-08','ID7200000022','TAX720000022','fismail@demo.capitecbank.co.za','+27829100022','7 Marine Dr','Durban','South Africa','global_one_active','tier2','Small trader', 28000.0, false,'Self','DEVGAME0002', cast(date_sub(current_date(),380) AS TIMESTAMP),'app','crm', current_timestamp());
 
 INSERT INTO capitec_fraud_aml_bronze.accounts VALUES
   ('ACCGAME01','CUSTGAME01','global_one_transact','ZAR', cast(date_sub(current_date(),400) AS TIMESTAMP),'active', cast(date_sub(current_date(),1) AS TIMESTAMP), 46000.00,'crm', current_timestamp()),
@@ -355,9 +356,9 @@ INSERT INTO capitec_fraud_aml_bronze.customers
    segment, kyc_tier, declared_occupation, declared_monthly_turnover, pep_flag, employer_name,
    device_id, onboarded_at, onboarding_channel, source_system, _ingested_at)
 VALUES
-  ('CUSTDUP01','Jan van der Merwe', DATE'1979-02-14','ID7300000031','TAX730000031','jvdm@example.co.za','+27829200031','5 Loop St','Cape Town','South Africa','global_one_active','tier2','Self-employed', 30000.0, false,'Blue Crane Logistics','DEVDUP0001', cast(date_sub(current_date(),700) AS TIMESTAMP),'branch','crm', current_timestamp()),
-  ('CUSTDUP02','J. v.d. Merwe',      DATE'1979-02-14','ID7300000031','TAX730000031','janvdm2@example.co.za','+27829200031','5 Loop Street','Cape Town','South Africa','global_one_active','tier1','Self employed', 30000.0, false,'Blue Crane Logistix','DEVDUP0001', cast(date_sub(current_date(),500) AS TIMESTAMP),'app','tabular', current_timestamp()),
-  ('CUSTDUP03','Johannes vdMerwe',   DATE'1979-02-14','ID7300000031','TAX730000031','jvandermerwe@example.co.za','+27829200099','5A Loop St','Cape Town','South Africa','global_one_plus','tier2','Self-employed', 30000.0, false,'Bluecrane Logistics','DEVDUP0009', cast(date_sub(current_date(),300) AS TIMESTAMP),'agent','data_vault', current_timestamp());
+  ('CUSTDUP01','Jan van der Merwe', DATE'1979-02-14','ID7300000031','TAX730000031','jvdm@demo.capitecbank.co.za','+27829200031','5 Loop St','Cape Town','South Africa','global_one_active','tier2','Self-employed', 30000.0, false,'Blue Crane Logistics','DEVDUP0001', cast(date_sub(current_date(),700) AS TIMESTAMP),'branch','crm', current_timestamp()),
+  ('CUSTDUP02','J. v.d. Merwe',      DATE'1979-02-14','ID7300000031','TAX730000031','janvdm2@demo.capitecbank.co.za','+27829200031','5 Loop Street','Cape Town','South Africa','global_one_active','tier1','Self employed', 30000.0, false,'Blue Crane Logistix','DEVDUP0001', cast(date_sub(current_date(),500) AS TIMESTAMP),'app','tabular', current_timestamp()),
+  ('CUSTDUP03','Johannes vdMerwe',   DATE'1979-02-14','ID7300000031','TAX730000031','jvandermerwe@demo.capitecbank.co.za','+27829200099','5A Loop St','Cape Town','South Africa','global_one_plus','tier2','Self-employed', 30000.0, false,'Bluecrane Logistics','DEVDUP0009', cast(date_sub(current_date(),300) AS TIMESTAMP),'agent','data_vault', current_timestamp());
 
 INSERT INTO capitec_fraud_aml_bronze.accounts VALUES
   ('ACCDUP01','CUSTDUP01','global_one_transact','ZAR', cast(date_sub(current_date(),700) AS TIMESTAMP),'active', cast(date_sub(current_date(),1) AS TIMESTAMP), 42000.00,'crm', current_timestamp()),

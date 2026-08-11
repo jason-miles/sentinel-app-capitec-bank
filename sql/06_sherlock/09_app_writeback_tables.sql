@@ -44,6 +44,9 @@ CREATE TABLE IF NOT EXISTS capitec_fraud_aml_gold.sherlock_sar_filings (
 COMMENT 'App write-back: SAR/STR filings with four-eyes approver.';
 
 -- Seed investigation notes on the hero cases so the timeline is populated on demo day.
+-- Idempotent: clear any prior seeded hero rows first so re-runs don't accumulate dupes.
+DELETE FROM capitec_fraud_aml_gold.sherlock_case_notes WHERE note_id LIKE 'NOTE-9%';
+DELETE FROM capitec_fraud_aml_gold.sherlock_case_actions WHERE action_id LIKE 'ACT-9%';
 INSERT INTO capitec_fraud_aml_gold.sherlock_case_notes
   (note_id, case_id, author, note, note_type, created_at)
 VALUES

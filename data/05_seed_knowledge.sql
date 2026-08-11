@@ -1,5 +1,8 @@
--- Capitec Fraud & AML — Synthetic seeder (5/5): AML KNOWLEDGE + SAR CORPUS
--- Unstructured RAG grounding for the copilot's policy agent and SAR drafting.
+-- Capitec Bank — Fraud & AML SAMPLE DATA · Synthetic seeder (5/5): AML KNOWLEDGE + SAR CORPUS
+-- *** CAPITEC BANK DEMO DATA — 100% SYNTHETIC ***
+-- Unstructured RAG grounding for the copilot's policy agent and SAR drafting: a
+-- Capitec-branded AML policy + escalation matrix, FATF typology guides, and historical
+-- FIC-format STR narratives filed as "Capitec Bank Limited".
 -- ALL content is synthetic DEMO DATA authored for this demo — it paraphrases
 -- PUBLIC FATF typologies and the South African FIC Act regime at a high level and
 -- contains no real entities, no confidential methods, and no evasion techniques.

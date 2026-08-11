@@ -1,5 +1,6 @@
--- Capitec Fraud & AML — Synthetic seeder (3/4): supporting feeds
+-- Capitec Bank — Fraud & AML SAMPLE DATA · Synthetic seeder (3/4): supporting feeds
 -- risk_ratings, beneficial_ownership, auth_events, adverse_media.
+-- *** CAPITEC BANK DEMO DATA — 100% SYNTHETIC ***
 
 USE CATALOG elexon_app_for_settlement_acc_catalog;
 

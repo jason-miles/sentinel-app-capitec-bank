@@ -10,7 +10,8 @@ export function Landing() {
       <div className="stat-band">
         <div className="s"><div className="n">90%</div><div className="l">Faster Investigations</div></div>
         <div className="s"><div className="n">50%</div><div className="l">Fewer False Positives</div></div>
-        <div className="s"><div className="n">$10M+</div><div className="l">Annual Savings</div></div>
+        <div className="s"><div className="n">R673m+</div><div className="l">Fraud Losses Prevented</div></div>
+        <div className="s"><div className="n">26M</div><div className="l">Global One Clients Protected</div></div>
       </div>
 
       <div className="entry-cards">
@@ -32,22 +33,22 @@ export function Landing() {
           <div className="ico">🔍</div>
           <h2>Alert Investigation</h2>
           <div className="role">AML Analyst Workspace</div>
-          <p className="muted">AI-powered investigation workspace with multi-agent assistance. Analyze alerts, gather evidence, and make SAR decisions in minutes instead of hours.</p>
+          <p className="muted">AI-powered investigation workspace with multi-agent assistance. Analyse alerts, gather evidence, and make STR decisions in minutes instead of hours.</p>
           <ul>
-            <li>Intelligent alert prioritization</li>
+            <li>Intelligent alert prioritisation</li>
             <li>Automated evidence gathering</li>
             <li>AI investigation assistant</li>
-            <li>One-click SAR generation</li>
+            <li>One-click STR (goAML) generation for the FIC</li>
           </ul>
           <button type="button" className="cta" onClick={() => nav("/investigation")}>Enter Investigation View →</button>
         </div>
       </div>
 
       <div className="footer-band">
-        <div className="f"><div className="l">Powered by</div><div className="v">Databricks Intelligence Platform</div></div>
-        <div className="f"><div className="l">Processing</div><div className="v">100,000+ TPS</div></div>
-        <div className="f"><div className="l">Deployment Time</div><div className="v">&lt;20 Weeks</div></div>
-        <div className="f"><div className="l">Compliance Rate</div><div className="v">99.9%</div></div>
+        <div className="f"><div className="l">Powered by</div><div className="v">Databricks on AWS</div></div>
+        <div className="f"><div className="l">Card Payments</div><div className="v">15,000+ / min</div></div>
+        <div className="f"><div className="l">Regulator</div><div className="v">FIC · FICA · SARB PA</div></div>
+        <div className="f"><div className="l">Data Governance</div><div className="v">Unity Catalog · POPIA</div></div>
       </div>
     </div>
   );

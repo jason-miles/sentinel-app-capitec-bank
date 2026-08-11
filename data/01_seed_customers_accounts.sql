@@ -1,9 +1,11 @@
--- Capitec Fraud & AML — Synthetic seeder (1/4): customers, accounts, third parties
+-- Capitec Bank — Fraud & AML SAMPLE DATA · Synthetic seeder (1/4): customers, accounts,
+-- third parties.  *** CAPITEC BANK DEMO DATA — 100% SYNTHETIC, NO REAL CLIENTS ***
 -- SQL-authored generation. Names/entities are clearly synthetic (no real individuals).
--- Volumes per PRD §10: ~5,000 customers, ~12,000 accounts, ~3,000 third parties.
--- Capitec context: mass-market retail bank. Signature product is the Global One
--- account (transactional + savings pockets); segments and balances reflect a
--- high-volume, lower-average-balance retail base rather than private wealth.
+-- Volumes per PRD §10: ~5,000 clients, ~12,000 accounts, ~3,000 third parties.
+-- Capitec context: mass-market SA retail bank. Signature product is the Global One
+-- account (transactional + savings pockets); SA 13-digit ID numbers, ZAR, a
+-- township/metro footprint, and Capitec's AWS-native source systems (enterprise data
+-- lake + core banking + CRM) — reflecting a high-volume, lower-average-balance base.
 
 USE CATALOG elexon_app_for_settlement_acc_catalog;
 
@@ -22,9 +24,14 @@ SELECT
               cast(pmod(id * 13, 16) + 1 AS INT))
   )                                                                  AS full_name,
   date_add('1955-01-01', cast(pmod(id * 97, 16000) AS INT))          AS dob,
-  concat('ID', lpad(cast(pmod(id * 999983, 9999999999) AS BIGINT), 10, '0')) AS national_id,
+  -- SA 13-digit ID number (YYMMDD + sequence) — the format Capitec captures at FICA
+  -- onboarding. Deterministic + clearly synthetic (SEQ block keeps it non-real).
+  concat(date_format(date_add('1955-01-01', cast(pmod(id * 97, 16000) AS INT)), 'yyMMdd'),
+         lpad(cast(pmod(id * 7919, 9999) AS INT), 4, '0'), '08',
+         cast(pmod(id, 9) AS INT))                                   AS national_id,
   concat('TAX', lpad(cast(pmod(id * 88883, 999999999) AS BIGINT), 9, '0'))   AS tax_number,
-  concat('customer', id, '@example.co.za')                          AS email,
+  -- Synthetic demo mailbox on a Capitec sample domain (clearly not production)
+  concat('client', id, '@demo.capitecbank.co.za')                   AS email,
   concat('+2782', lpad(cast(pmod(id * 31, 9999999) AS INT), 7, '0')) AS phone,
   concat(cast(pmod(id, 200) + 1 AS INT), ' ', element_at(array('Church','Voortrekker','Main','Klipfontein','Vilakazi','Govan Mbeki'), cast(pmod(id,6)+1 AS INT)), ' St') AS address,
   -- Broad SA metro + township/secondary-city footprint (retail, not private-wealth enclaves)
@@ -44,10 +51,14 @@ SELECT
   element_at(array('Shoprite Holdings','Shoprite Hldgs','Transnet SOC','Transnet','Eskom',
                    'Dept of Education','Dept. of Education','Pick n Pay','PnP Retailers','Self'),
              cast(pmod(id * 3, 10) + 1 AS INT))                      AS employer_name,
-  concat('DEV', lpad(cast(pmod(id * 40009, 90000000) AS BIGINT), 8, '0')) AS device_id,
+  -- Global One banking-app device fingerprint (the channel most Capitec clients use)
+  concat('GO-APP-', lpad(cast(pmod(id * 40009, 90000000) AS BIGINT), 8, '0')) AS device_id,
   cast(date_add('2018-01-01', cast(pmod(id * 17, 2900) AS INT)) AS TIMESTAMP) AS onboarded_at,
-  element_at(array('app','branch','agent'), cast(pmod(id, 3) + 1 AS INT)) AS onboarding_channel,
-  element_at(array('data_vault','tabular','crm'), cast(pmod(id, 3) + 1 AS INT)) AS source_system,
+  -- Capitec channels: the Global One app, a branch, or a WhatsApp/USSD-assisted agent
+  element_at(array('global_one_app','branch','agent'), cast(pmod(id, 3) + 1 AS INT)) AS onboarding_channel,
+  -- Capitec's AWS-native estate (per their published stack): enterprise data lake,
+  -- core banking, and the CRM feed — the systems this medallion conforms.
+  element_at(array('capitec_edl','core_banking','crm_360'), cast(pmod(id, 3) + 1 AS INT)) AS source_system,
   current_timestamp()                                                AS _ingested_at
 FROM ids;
 
@@ -69,7 +80,7 @@ SELECT
   element_at(array('Johannesburg','Cape Town','London','Dubai','Mauritius','Durban'), cast(pmod(id, 6) + 1 AS INT)) AS city,
   element_at(array('South Africa','South Africa','United Kingdom','UAE','Mauritius','South Africa'), cast(pmod(id, 6) + 1 AS INT)) AS country,
   cast(date_add('2015-01-01', cast(pmod(id * 23, 3500) AS INT)) AS TIMESTAMP) AS registered_at,
-  element_at(array('register','kyc_doc'), cast(pmod(id,2)+1 AS INT)) AS source_system,
+  element_at(array('cipc_register','kyc_docs'), cast(pmod(id,2)+1 AS INT)) AS source_system,  -- SA companies register (CIPC) + KYC docs
   current_timestamp()                                                AS _ingested_at
 FROM ids;
 
@@ -96,6 +107,6 @@ SELECT
        ELSE date_sub(current_date(), cast(pmod(cust_num, 30) AS INT)) END AS last_activity_before_ts,
   -- Retail balances: most R200–R60k, with a long tail up to ~R250k (not private-wealth millions)
   round(pmod(cust_num * 9973, 250000) + 200, 2)                     AS balance,
-  element_at(array('data_vault','tabular','crm'), cast(pmod(cust_num, 3) + 1 AS INT)) AS source_system,
+  element_at(array('capitec_edl','core_banking','crm_360'), cast(pmod(cust_num, 3) + 1 AS INT)) AS source_system,
   current_timestamp()                                                AS _ingested_at
 FROM expanded;
