@@ -61,7 +61,10 @@ FROM base b
 JOIN scenarios s  ON s.sc_idx = pmod(b.id, 9)
 JOIN teams t      ON t.t_idx  = pmod(b.id, 4)
 JOIN priorities p ON p.p_idx  = pmod(b.id * 3, 5)
-JOIN statuses st  ON st.st_idx = pmod(b.id * 5, 5)
+-- NOTE: the multiplier MUST be coprime with 5, else the index collapses to a single
+-- value (pmod(id*5,5) ≡ 0 pinned every case to 'new'). 7 cycles through all 5 statuses
+-- so the queue, FP-rate, team-performance and resolution-flow views are all populated.
+JOIN statuses st  ON st.st_idx = pmod(b.id * 7, 5)
 JOIN analysts an  ON an.a_idx = pmod(b.id, 6)
 LEFT JOIN capitec_fraud_aml_gold.sherlock_teams tm ON tm.team_id = t.team_id
 LEFT JOIN capitec_fraud_aml_gold.sherlock_analysts ana ON ana.analyst_id = an.analyst_id

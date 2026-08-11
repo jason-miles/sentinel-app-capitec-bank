@@ -10,7 +10,7 @@ USE CATALOG elexon_app_for_settlement_acc_catalog;
 DELETE FROM capitec_fraud_aml_gold.sherlock_cases
 WHERE scenario IN ('Sanctions/Watchlist Hit', 'Behavioural Anomaly');
 
--- Sanctions/Watchlist cases -> Sanctions & Watchlist Screening team (Lisa Wang)
+-- Sanctions/Watchlist cases -> Sanctions & Watchlist Screening team (Lerato Mokoena)
 INSERT INTO capitec_fraud_aml_gold.sherlock_cases
 SELECT
   concat('CASE-SCR-', row_number() OVER (ORDER BY h.screening_id))            AS case_id,
@@ -23,7 +23,7 @@ SELECT
   'TEAM_SW'                                                                  AS team_id,
   'Sanctions & Watchlist Screening'                                          AS team_name,
   'AN_LISA'                                                                  AS analyst_id,
-  'Lisa Wang'                                                                AS analyst_name,
+  'Lerato Mokoena'                                                           AS analyst_name,
   cast(round(60 + h.match_score * 39) AS INT)                                AS risk_score,
   0.0                                                                        AS amount,
   cast(pmod(cast(regexp_replace(h.watchlist_id,'[^0-9]','') AS INT), 30) AS INT) AS days_open,
@@ -46,7 +46,7 @@ SELECT
   'TEAM_FR'                                                                AS team_id,
   'Fraud Investigations'                                                   AS team_name,
   'AN_MARIA'                                                               AS analyst_id,
-  'Maria Garcia'                                                           AS analyst_name,
+  'Anele Mbatha'                                                           AS analyst_name,
   cast(least(99, round(50 + a.anomaly_score * 8)) AS INT)                  AS risk_score,
   a.total_value                                                            AS amount,
   cast(pmod(cast(a.anomaly_score * 10 AS INT), 30) AS INT)                 AS days_open,
