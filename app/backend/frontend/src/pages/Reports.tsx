@@ -18,7 +18,7 @@ export function Reports() {
       <p className="page-sub">Embedded Databricks AI/BI dashboard — executive KPIs, alert trends, and team performance.</p>
       {embed ? (
         <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-          <iframe title="Nedbank Sentinel — Executive Overview" src={embed}
+          <iframe title="Capitec Sentinel — Executive Overview" src={embed}
             style={{ width: "100%", height: "80vh", border: "none" }} />
         </div>
       ) : (

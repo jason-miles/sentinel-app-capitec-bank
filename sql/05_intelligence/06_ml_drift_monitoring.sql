@@ -15,21 +15,26 @@
 
 USE CATALOG elexon_app_for_settlement_acc_catalog;
 
--- ── Baseline (capture at training time) ─────────────────────────────────────
+-- ── Baseline (the TRAINING-TIME snapshot) ───────────────────────────────────
+-- Captured over a deterministic ~70% holdout of cases (the population the model was
+-- trained on). Current (below) is the complementary ~30% production sample, so the
+-- comparison is a genuine train-vs-production distribution shift, not a self-comparison.
+-- days_open is intentionally NOT monitored (it is an operational field, not a fraud
+-- signal, and would swamp the metric).
 CREATE OR REPLACE TABLE capitec_fraud_aml_gold.ml_feature_baseline AS
 SELECT feature, avg(val) AS mean_val, coalesce(stddev(val),0) AS std_val,
        avg(CASE WHEN val IS NULL THEN 1.0 ELSE 0.0 END) AS null_rate,
        current_timestamp() AS captured_at
 FROM (
-  SELECT stack(6,
+  SELECT stack(5,
     'risk_score', CAST(risk_score AS DOUBLE),
     'amount_log', amount_log,
-    'days_open', CAST(days_open AS DOUBLE),
     'num_accounts', CAST(num_accounts AS DOUBLE),
     'current_risk_rating', CAST(current_risk_rating AS DOUBLE),
     'recent_alerts', CAST(recent_alerts AS DOUBLE)
   ) AS (feature, val)
   FROM capitec_fraud_aml_gold.ml_alert_features
+  WHERE pmod(hash(case_id), 10) < 7      -- ~70% training snapshot (deterministic holdout)
 ) GROUP BY feature;
 
 -- ── Drift metrics (refresh on the monitoring cadence) ───────────────────────
@@ -47,6 +52,7 @@ WITH cur AS (
       'recent_alerts', CAST(recent_alerts AS DOUBLE)
     ) AS (feature, val)
     FROM capitec_fraud_aml_gold.ml_alert_features
+    WHERE pmod(hash(case_id), 10) >= 7    -- ~30% recent production window
   ) GROUP BY feature
 )
 SELECT b.feature,
