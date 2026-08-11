@@ -14,7 +14,7 @@ import sys, subprocess, importlib
 TGT = "/tmp/ml_libs"
 subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--target", TGT,
                 "mlflow-skinny>=2.15", "scikit-learn>=1.3", "pandas>=2.0",
-                "cloudpickle", "typing_extensions>=4.10"], check=True)
+                "cloudpickle", "skops", "typing_extensions>=4.10"], check=True)
 sys.path.insert(0, TGT)
 # evict any preloaded stubs so the freshly installed versions win
 for m in [k for k in list(sys.modules) if k == "typing_extensions" or k.startswith("mlflow")]:
