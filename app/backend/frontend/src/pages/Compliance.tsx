@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getScreening, getPkyc, getPkycSummary, getAnomalies, getModelGovernance, getModelDrift, getLlmEval, getAudit } from "../api";
+import { getScreening, getPkyc, getPkycSummary, getAnomalies, getModelGovernance, getModelDrift, getLlmEval, getAudit, getImpossibleTravel } from "../api";
 import { Loading, ErrorState, num, money } from "../components/ui";
 
 function Badge({ s }: { s: string }) {
@@ -9,21 +9,23 @@ function Badge({ s }: { s: string }) {
 }
 
 export function Compliance() {
-  const [tab, setTab] = useState<"screening" | "pkyc" | "anomaly" | "model" | "audit">("screening");
+  const [tab, setTab] = useState<"screening" | "pkyc" | "anomaly" | "travel" | "model" | "audit">("screening");
   return (
     <>
       <h1 className="page-title">Compliance & Risk</h1>
-      <p className="page-sub">Sanctions & watchlist screening · perpetual KYC · behavioural peer-group anomaly detection · model governance · audit trail.</p>
+      <p className="page-sub">Sanctions & watchlist screening · perpetual KYC · behavioural peer-group anomaly detection · impossible travel · model governance · audit trail.</p>
       <div className="tabs">
         <button className={tab === "screening" ? "active" : ""} onClick={() => setTab("screening")}>Sanctions Screening</button>
         <button className={tab === "pkyc" ? "active" : ""} onClick={() => setTab("pkyc")}>Perpetual KYC</button>
         <button className={tab === "anomaly" ? "active" : ""} onClick={() => setTab("anomaly")}>Peer Anomalies</button>
+        <button className={tab === "travel" ? "active" : ""} onClick={() => setTab("travel")}>Impossible Travel</button>
         <button className={tab === "model" ? "active" : ""} onClick={() => setTab("model")}>Model Governance</button>
         <button className={tab === "audit" ? "active" : ""} onClick={() => setTab("audit")}>Audit Trail</button>
       </div>
       {tab === "screening" && <Screening />}
       {tab === "pkyc" && <Pkyc />}
       {tab === "anomaly" && <Anomaly />}
+      {tab === "travel" && <ImpossibleTravel />}
       {tab === "model" && <ModelGovernance />}
       {tab === "audit" && <AuditTrail />}
     </>
@@ -256,6 +258,42 @@ function Pkyc() {
         </table>
       </div>
     </>
+  );
+}
+
+function ImpossibleTravel() {
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
+  const load = () => { setErr(false); getImpossibleTravel().then((r) => { setRows(r); setLoading(false); }).catch(() => { setErr(true); setLoading(false); }); };
+  useEffect(() => { load(); }, []);
+  if (loading) return <Loading what="impossible-travel alerts" />;
+  if (err) return <ErrorState what="impossible-travel alerts" onRetry={() => { setLoading(true); load(); }} />;
+  return (
+    <div className="panel">
+      <h3 className="left">Impossible Travel — one card tapped in two places too far apart to be physical</h3>
+      <p className="muted" style={{ marginTop: 0 }}>Geospatial velocity on card taps (haversine km ÷ elapsed time). An implied speed above ~900 km/h can't be a real journey — a strong card-compromise / cloning signal.</p>
+      {rows.length === 0 && <span className="muted">No impossible-travel alerts.</span>}
+      {rows.map((r) => {
+        const legs = r.legs || [];
+        const a = legs[0] || {}; const b = legs[1] || {};
+        return (
+          <div key={r.alert_id} className="explain" style={{ marginBottom: 12, borderLeft: "3px solid var(--critical)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <span style={{ fontWeight: 700 }}>{a.city || r.from_city}</span>
+              <span className="muted">{a.country || ""} {a.merchant ? `· ${a.merchant}` : ""}</span>
+              <span style={{ color: "var(--critical)", fontWeight: 700 }}>→</span>
+              <span style={{ fontWeight: 700 }}>{b.city || r.to_city}</span>
+              <span className="muted">{b.country || ""} {b.merchant ? `· ${b.merchant}` : ""}</span>
+              <span className="badge sev-critical" style={{ marginLeft: "auto" }}>{Number(r.implied_kmh).toLocaleString()} km/h</span>
+            </div>
+            <div className="muted" style={{ marginTop: 6, fontSize: 12 }}>
+              Card <span className="mono">{r.account_id}</span> · score {Number(r.score).toFixed(2)} · {r.explanation}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
