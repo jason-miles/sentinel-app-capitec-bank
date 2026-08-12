@@ -57,7 +57,7 @@ function AuditTrail() {
         {rows.length === 0
           ? <p className="muted" style={{ margin: "10px 0 0" }}>No audit events yet. Open a case, add a note, or file a SAR to generate an entry.</p>
           : <table>
-              <thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Case</th><th>Detail</th><th>Source</th></tr></thead>
+              <thead><tr><th scope="col">Timestamp</th><th scope="col">Actor</th><th scope="col">Action</th><th scope="col">Case</th><th scope="col">Detail</th><th scope="col">Source</th></tr></thead>
               <tbody>
                 {rows.map((r, i) => (
                   <tr key={i}>
@@ -136,7 +136,7 @@ function ModelGovernance() {
             <strong> drift</strong> verdict triggers a retrain (scheduled job <span className="mono">fraud_ml_retrain</span>).
           </p>
           <table>
-            <thead><tr><th>Feature</th><th>Baseline μ</th><th>Current μ</th><th>Shift (σ)</th><th>Status</th></tr></thead>
+            <thead><tr><th scope="col">Feature</th><th scope="col">Baseline μ</th><th scope="col">Current μ</th><th scope="col">Shift (σ)</th><th scope="col">Status</th></tr></thead>
             <tbody>
               {(drift.features || []).map((f: any, i: number) => (
                 <tr key={i}>
@@ -195,7 +195,7 @@ function Screening() {
       <div className="panel">
         <h3 className="left">Screening Hits — customers & counterparties vs sanctions / PEP / adverse watchlists</h3>
         <table>
-          <thead><tr><th>Entity</th><th>Type</th><th>Watchlist Match</th><th>List</th><th>Source</th><th>Confidence</th><th>Score</th><th>Reason</th></tr></thead>
+          <thead><tr><th scope="col">Entity</th><th scope="col">Type</th><th scope="col">Watchlist Match</th><th scope="col">List</th><th scope="col">Source</th><th scope="col">Confidence</th><th scope="col">Score</th><th scope="col">Reason</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.screening_id}>
@@ -241,7 +241,7 @@ function Pkyc() {
       <div className="panel">
         <h3 className="left">Dynamic Customer Risk — continuously recomputed from alerts, sanctions, adverse media, geography & exposure</h3>
         <table>
-          <thead><tr><th>Customer</th><th>Segment</th><th>Country</th><th>Dynamic Risk</th><th>Band</th><th>EDD</th><th>Risk Drivers</th></tr></thead>
+          <thead><tr><th scope="col">Customer</th><th scope="col">Segment</th><th scope="col">Country</th><th scope="col">Dynamic Risk</th><th scope="col">Band</th><th scope="col">EDD</th><th scope="col">Risk Drivers</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.customer_id}>
@@ -311,7 +311,7 @@ function Anomaly() {
         <h3 className="left">Behavioural Peer-Group Anomalies — customers behaving unlike their segment peers (unsupervised, 3σ+)</h3>
         <p className="muted" style={{ marginTop: 0 }}>Catches novel typologies fixed thresholds miss — the false-positive-reduction story.</p>
         <table>
-          <thead><tr><th>Customer</th><th>Segment</th><th>Txns (90d)</th><th>Peer Avg</th><th>Anomaly σ</th><th>Severity</th><th>Explanation</th></tr></thead>
+          <thead><tr><th scope="col">Customer</th><th scope="col">Segment</th><th scope="col">Txns (90d)</th><th scope="col">Peer Avg</th><th scope="col">Anomaly σ</th><th scope="col">Severity</th><th scope="col">Explanation</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.customer_id}>
